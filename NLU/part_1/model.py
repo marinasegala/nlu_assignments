@@ -29,7 +29,7 @@ class LM_LSTM(nn.Module):
 
         self.emb_dropout = nn.Dropout(emb_dropout)
 
-        self.rnn = nn.LSTM(emb_size, hidden_size, n_layers, bidirectional=False, batch_first=True)
+        self.lstm = nn.LSTM(emb_size, hidden_size, n_layers, bidirectional=False, batch_first=True)
         self.pad_token = pad_index
 
         self.last_dropout = nn.Dropout(out_dropout)
@@ -39,9 +39,9 @@ class LM_LSTM(nn.Module):
 
     def forward(self, input_sequence):  #how layers interact
         emb = self.embedding(input_sequence)
-        #drop1 = self.emb_dropout(emb)
-        lsmt_out, _  = self.rnn(emb) #drop1) #emb
-        #drop2 = self.last_dropout(rnn_out)
-        output = self.output(lsmt_out).permute(0,2,1) #rnn_out
+        drop1 = self.emb_dropout(emb)
+        lsmt_out, _  = self.lstm(drop1) #emb
+        drop2 = self.last_dropout(lsmt_out)
+        output = self.output(drop2).permute(0,2,1) #rnn_out
         return output
     

@@ -48,7 +48,7 @@ if __name__ == "__main__":
     # Increasing the back propagation steps can be seen as a regularization step
 
     # With SGD try with an higher learning rate (> 1 for instance)
-    lr = 1.2 #0.0001 # This is definitely not good for SGD
+    lr = 2 #0.0001 # This is definitely not good for SGD
     clip = 5 # Clip the gradient
     device = 'cuda:0'
 
@@ -96,7 +96,8 @@ if __name__ == "__main__":
                 #   lr = lr/4
                 # else:
                 #   print(epoch, ' di 2')
-                #lr = lr /2
+                print(epoch)
+                lr = lr /2
 
 
             if patience <= 0: # Early stopping with patience
@@ -108,7 +109,7 @@ if __name__ == "__main__":
 
     #save into a csv file the results
     
-    index = 0
+    index = 1
     with open('results_'+str(index)+'.csv', mode='w') as file:
         writer = csv.writer(file)
         writer.writerow(['Epoch', 'Train Loss', 'Dev Loss', 'PPL'])
