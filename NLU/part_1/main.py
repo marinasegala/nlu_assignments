@@ -113,7 +113,7 @@ if __name__ == "__main__":
     with open('results_'+str(index)+'.csv', mode='w') as file:
         writer = csv.writer(file)
         writer.writerow(['Epoch', 'Train Loss', 'Dev Loss', 'PPL'])
-        for i in range(len(sampled_epochs)):
+        for i in range(len(array_ppl)):
             writer.writerow([sampled_epochs[i], losses_train[i], losses_dev[i], array_ppl[i]])
 
     #-----------------------#
