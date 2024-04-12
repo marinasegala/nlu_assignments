@@ -96,7 +96,7 @@ if __name__ == "__main__":
                 #   lr = lr/4
                 # else:
                 #   print(epoch, ' di 2')
-                lr = lr /2
+                #lr = lr /2
 
 
             if patience <= 0: # Early stopping with patience
@@ -109,7 +109,7 @@ if __name__ == "__main__":
     #save into a csv file the results
     
     index = 0
-    with open('results_'+index+'.csv', mode='w') as file:
+    with open('results_'+str(index)+'.csv', mode='w') as file:
         writer = csv.writer(file)
         writer.writerow(['Epoch', 'Train Loss', 'Dev Loss', 'PPL'])
         for i in range(len(sampled_epochs)):
