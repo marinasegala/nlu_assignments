@@ -23,8 +23,8 @@ markers = [40,47,51,53,55,64,67,73,75,82,83,86,88,89,91,94,98]
 print(len(epochs))
 print(len(pll))
 
-plt.plot(epochs, pll, '-b.', markevery=markers, label='pll')
-#plt.plot(epochs, dev_loss, '-r', label='train_loss')
+#plt.plot(epochs, pll, '-b.', markevery=markers, label='pll')
+plt.plot(epochs, dev_loss, '-r', label='train_loss')
 plt.xlabel('Epochs')
 
 
