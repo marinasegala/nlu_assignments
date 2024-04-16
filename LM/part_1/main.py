@@ -73,16 +73,19 @@ if __name__ == "__main__":
     best_ppl = math.inf
     best_model = None
     array_ppl = []
+    train_loss = []
+    dev_loss = []
     cut_epochs = []
     pbar = tqdm(range(1,n_epochs))
     #If the PPL is too high try to change the learning rate
     for epoch in pbar:
         loss = train_loop(train_loader, optimizer, criterion_train, model, clip)
-
+        train_loss.append(loss)
         if epoch % 1 == 0:
             sampled_epochs.append(epoch)
             losses_train.append(np.asarray(loss).mean())
             ppl_dev, loss_dev = eval_loop(dev_loader, criterion_eval, model)
+            dev_loss.append(loss_dev)
             losses_dev.append(np.asarray(loss_dev).mean())
             pbar.set_description("PPL: %f" % ppl_dev)
             array_ppl.append(ppl_dev)
@@ -112,12 +115,12 @@ if __name__ == "__main__":
 
     #save into a csv file the results
     
-    index = 1
-    with open('LM/part_1/results_'+str(index)+'.csv', mode='w') as file:
+    index = 0
+    with open('result_'+str(index)+'.csv', mode='w') as file:
         writer = csv.writer(file)
         writer.writerow(['Epoch', 'Train Loss', 'Dev Loss', 'PPL'])
         for i in range(len(array_ppl)):
-            writer.writerow([sampled_epochs[i], losses_train[i], losses_dev[i], array_ppl[i]])
+            writer.writerow([sampled_epochs[i], train_loss[i], dev_loss[i], array_ppl[i]])
     #-----------------------#
 
     # To save the model
