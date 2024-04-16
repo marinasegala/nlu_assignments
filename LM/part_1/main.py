@@ -115,7 +115,7 @@ if __name__ == "__main__":
 
     #save into a csv file the results
     
-    index = 0
+    index = 1
     with open('result_'+str(index)+'.csv', mode='w') as file:
         writer = csv.writer(file)
         writer.writerow(['Epoch', 'Train Loss', 'Dev Loss', 'PPL'])

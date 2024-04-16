@@ -19,7 +19,7 @@ train_loss = create_array(1)
 dev_loss = create_array(2)
 pll = create_array(3)
 markers_res_0 = [12, 29, 31, 33, 35, 37, 40, 41, 43, 44, 45]
-
+markers_res_1 = [30, 48, 53, 61, 63, 68, 72, 75, 76, 77]
 print(len(epochs))
 print(len(pll))
 
