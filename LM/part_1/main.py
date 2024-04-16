@@ -73,6 +73,7 @@ if __name__ == "__main__":
     best_ppl = math.inf
     best_model = None
     array_ppl = []
+    cut_epochs = []
     pbar = tqdm(range(1,n_epochs))
     #If the PPL is too high try to change the learning rate
     for epoch in pbar:
@@ -96,7 +97,8 @@ if __name__ == "__main__":
                 #   lr = lr/4
                 # else:
                 #   print(epoch, ' di 2')
-                print(epoch)
+                #print(epoch)
+                cut_epochs.append(epoch)
                 lr = lr /2
 
 
@@ -106,6 +108,7 @@ if __name__ == "__main__":
     best_model.to(device)
     final_ppl,  _ = eval_loop(test_loader, criterion_eval, best_model)
     print('Test ppl: ', final_ppl)
+    print(cut_epochs)
 
     #save into a csv file the results
     
@@ -115,7 +118,6 @@ if __name__ == "__main__":
         writer.writerow(['Epoch', 'Train Loss', 'Dev Loss', 'PPL'])
         for i in range(len(array_ppl)):
             writer.writerow([sampled_epochs[i], losses_train[i], losses_dev[i], array_ppl[i]])
-
     #-----------------------#
 
     # To save the model

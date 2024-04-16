@@ -18,14 +18,13 @@ epochs = create_array(0)
 train_loss = create_array(1)
 dev_loss = create_array(2)
 pll = create_array(3)
-dim = [40,47,51,53,55,64,67,73,75,82,83,86,88,89,91,94,98]
+markers = [40,47,51,53,55,64,67,73,75,82,83,86,88,89,91,94,98]
 
 print(len(epochs))
 print(len(pll))
 
-plt.plot(epochs, pll, label='Pll')
-for d in dim:
-    plt.plot(epochs[d], pll[d], 'ro')
+plt.plot(epochs, pll, '-b.', markevery=markers, label='pll')
+#plt.plot(epochs, dev_loss, '-r', label='train_loss')
 plt.xlabel('Epochs')
 
 
