@@ -113,7 +113,7 @@ if __name__ == "__main__":
     #save into a csv file the results
     
     index = 1
-    with open('results_'+str(index)+'.csv', mode='w') as file:
+    with open('LM/part_1/results_'+str(index)+'.csv', mode='w') as file:
         writer = csv.writer(file)
         writer.writerow(['Epoch', 'Train Loss', 'Dev Loss', 'PPL'])
         for i in range(len(array_ppl)):
