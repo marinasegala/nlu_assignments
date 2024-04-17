@@ -76,6 +76,8 @@ if __name__ == "__main__":
     train_loss = []
     dev_loss = []
     cut_epochs = []
+    train_loss = []
+    dev_loss = []
     pbar = tqdm(range(1,n_epochs))
     #If the PPL is too high try to change the learning rate
     for epoch in pbar:

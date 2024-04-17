@@ -23,7 +23,7 @@ markers_res_1 = [30, 48, 53, 61, 63, 68, 72, 75, 76, 77]
 print(len(epochs))
 print(len(pll))
 
-#plt.plot(epochs, pll, '-b.', markevery=markers, label='pll')
+#plt.plot(epochs, pll, '-b.', markevery=markers_res_0, label='pll')
 #plt.plot(epochs, dev_loss, '-r', label='train_loss')
 plt.xlabel('Epochs')
 
