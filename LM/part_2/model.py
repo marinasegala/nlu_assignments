@@ -21,5 +21,20 @@ class LM_LSTM(nn.Module):
         output = self.output(lsmt_out).permute(0,2,1) #rnn_out
         return output
         #implement variational dropout
-        
-    
+
+
+# class VariationalDropout(nn.Module):
+#     def __init__(self):
+#         super().__init__()
+#
+#     def forward(self, input, dropout):
+#         if self.training:
+#             mask = torch.empty(input.size(1), input.size(2), device=input.device).bernoulli_(1 - dropout) / (
+#                         1 - dropout)
+#             mask = mask.expand_as(input)
+#             return mask * input
+#         else:
+#             return input
+#
+#     def __repr__(self):
+#         return "VariationalDropout()"

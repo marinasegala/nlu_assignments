@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     # Experiment also with a smaller or bigger model by changing hid and emb sizes
     # A large model tends to overfit
-    hid_size = 200 #200
+    hid_size = 300 #200
     emb_size = 300
 
     # Don't forget to experiment with a lower training batch size
@@ -72,28 +72,34 @@ if __name__ == "__main__":
     sampled_epochs = []
     best_ppl = math.inf
     best_model = None
-    array_ppl = []
+    array_dev = []
+    array_train = []
     cut_epochs = []
+    train_loss = []
+    dev_loss = []
     pbar = tqdm(range(1,n_epochs))
     #If the PPL is too high try to change the learning rate
     for epoch in pbar:
-        loss = train_loop(train_loader, optimizer, criterion_train, model, clip)
-
+        ppl, loss = train_loop(train_loader, optimizer, criterion_train, model, clip)
+        #print(loss)
+        train_loss.append(loss)
+        array_train.append(ppl)
         if epoch % 1 == 0:
             sampled_epochs.append(epoch)
             losses_train.append(np.asarray(loss).mean())
             ppl_dev, loss_dev = eval_loop(dev_loader, criterion_eval, model)
+            dev_loss.append(loss_dev)
             losses_dev.append(np.asarray(loss_dev).mean())
             pbar.set_description("PPL: %f" % ppl_dev)
-            array_ppl.append(ppl_dev)
+            array_dev.append(ppl_dev)
             if  ppl_dev < best_ppl: # the lower, the better
                 best_ppl = ppl_dev
                 best_model = copy.deepcopy(model).to('cpu')
                 patience = 3
             else:
                 patience -= 1
-                cut_epochs.append(epoch)
-                lr = lr /2
+                #cut_epochs.append(epoch)
+                #lr = lr /2
 
 
             if patience <= 0: # Early stopping with patience
@@ -107,11 +113,11 @@ if __name__ == "__main__":
     #save into a csv file the results
     
     index = 0
-    with open('LM/part_2/results_'+str(index)+'.csv', mode='w') as file:
+    with open('result_'+str(index)+'.csv', mode='w') as file:
         writer = csv.writer(file)
-        writer.writerow(['Epoch', 'Train Loss', 'Dev Loss', 'PPL'])
-        for i in range(len(array_ppl)):
-            writer.writerow([sampled_epochs[i], losses_train[i], losses_dev[i], array_ppl[i]])
+        writer.writerow(['Epoch', 'Train Loss', 'Dev Loss', 'PPL train', 'PPL dev'])
+        for i in range(len(array_train)):
+            writer.writerow([sampled_epochs[i], train_loss[i], dev_loss[i], array_train[i], array_dev[i]])
     #-----------------------#
 
     # To save the model
