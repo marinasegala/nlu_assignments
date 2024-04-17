@@ -13,7 +13,7 @@ import torch.optim as optim
 from tqdm import tqdm
 import numpy as np
 import copy
-import csv
+import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
     #Wrtite the code to load the datasets and to run your functions
@@ -72,26 +72,28 @@ if __name__ == "__main__":
     sampled_epochs = []
     best_ppl = math.inf
     best_model = None
-    array_dev = []
-    array_train = []
+    array_dev_ppl = []
+    array_train_ppl = []
     cut_epochs = []
-    train_loss = []
-    dev_loss = []
+    array_train_loss = []
+    array_dev_loss = []
     pbar = tqdm(range(1,n_epochs))
     #If the PPL is too high try to change the learning rate
     for epoch in pbar:
         ppl, loss = train_loop(train_loader, optimizer, criterion_train, model, clip)
         #print(loss)
-        train_loss.append(loss)
-        array_train.append(ppl)
+        array_train_loss.append(loss)
+        array_train_ppl.append(ppl)
+        sampled_epochs.append(epoch)
+
         if epoch % 1 == 0:
-            sampled_epochs.append(epoch)
             losses_train.append(np.asarray(loss).mean())
             ppl_dev, loss_dev = eval_loop(dev_loader, criterion_eval, model)
-            dev_loss.append(loss_dev)
+            array_dev_loss.append(loss_dev)
+            array_dev_ppl.append(ppl_dev)
+
             losses_dev.append(np.asarray(loss_dev).mean())
             pbar.set_description("PPL: %f" % ppl_dev)
-            array_dev.append(ppl_dev)
             if  ppl_dev < best_ppl: # the lower, the better
                 best_ppl = ppl_dev
                 best_model = copy.deepcopy(model).to('cpu')
@@ -110,14 +112,32 @@ if __name__ == "__main__":
     print('Test ppl: ', final_ppl)
     print(cut_epochs)
 
-    #save into a csv file the results
+    plt.plot(sampled_epochs, array_dev_loss, '-b', label='dev_loss')
+    plt.plot(sampled_epochs, array_train_loss, '-r', label='train_loss')
+    plt.xlabel('Epochs')
+
+
+    plt.legend()
+    plt.grid()
+
+    plt.savefig('loss.png')
+
+    plt.plot(sampled_epochs, array_dev_ppl, '-b', label='dev')
+    plt.plot(sampled_epochs, array_train_ppl, '-r', label='train')
+    plt.xlabel('Epochs')
+
+
+    plt.legend()
+    plt.grid()
+
+    plt.savefig('ppl.png')
     
-    index = 0
-    with open('result_'+str(index)+'.csv', mode='w') as file:
-        writer = csv.writer(file)
-        writer.writerow(['Epoch', 'Train Loss', 'Dev Loss', 'PPL train', 'PPL dev'])
-        for i in range(len(array_train)):
-            writer.writerow([sampled_epochs[i], train_loss[i], dev_loss[i], array_train[i], array_dev[i]])
+    # index = 0
+    # with open('result_'+str(index)+'.csv', mode='w') as file:
+    #     writer = csv.writer(file)
+    #     writer.writerow(['Epoch', 'Train Loss', 'Dev Loss', 'PPL train', 'PPL dev'])
+    #     for i in range(len(array_train)):
+    #         writer.writerow([sampled_epochs[i], train_loss[i], dev_loss[i], array_train[i], array_dev[i]])
     #-----------------------#
 
     # To save the model

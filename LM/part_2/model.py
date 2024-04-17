@@ -1,6 +1,21 @@
 import torch 
 import torch.nn as nn    
 
+class LockedDropout(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.mask = None
+
+    def forward(self, x, dropout=0.5):
+        if not self.training or not dropout:
+            return x
+        if self.mask is None:
+            m = torch.empty(x.size(1), x.size(2), device = x.device).bernoulli_(1 - dropout)
+            mask = m / (1 - dropout)
+            mask = mask.expand_as(x)
+            self.mask = mask
+        return self.mask * x
+    
 class LM_LSTM(nn.Module):
     def __init__(self, emb_size, hidden_size, output_size, pad_index=0, out_dropout=0.1, emb_dropout=0.1, n_layers=1):
         super(LM_LSTM, self).__init__()
@@ -17,24 +32,9 @@ class LM_LSTM(nn.Module):
 
     def forward(self, input_sequence):  #how layers interact
         emb = self.embedding(input_sequence)
-        lsmt_out, _  = self.lstm(emb) #emb
-        output = self.output(lsmt_out).permute(0,2,1) #rnn_out
+        drop1 = self.emb_dropout(emb)
+        lstm_out, _  = self.rnn(drop1) #emb
+        drop2 = self.last_dropout(lstm_out)
+        output = self.output(drop2).permute(0,2,1) #rnn_out
         return output
         #implement variational dropout
-
-
-# class VariationalDropout(nn.Module):
-#     def __init__(self):
-#         super().__init__()
-#
-#     def forward(self, input, dropout):
-#         if self.training:
-#             mask = torch.empty(input.size(1), input.size(2), device=input.device).bernoulli_(1 - dropout) / (
-#                         1 - dropout)
-#             mask = mask.expand_as(input)
-#             return mask * input
-#         else:
-#             return input
-#
-#     def __repr__(self):
-#         return "VariationalDropout()"
