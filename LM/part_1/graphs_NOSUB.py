@@ -18,13 +18,13 @@ epochs = create_array(0)
 train_loss = create_array(1)
 dev_loss = create_array(2)
 pll = create_array(3)
-markers = [40,47,51,53,55,64,67,73,75,82,83,86,88,89,91,94,98]
-
+markers_res_0 = [12, 29, 31, 33, 35, 37, 40, 41, 43, 44, 45]
+markers_res_1 = [30, 48, 53, 61, 63, 68, 72, 75, 76, 77]
 print(len(epochs))
 print(len(pll))
 
-#plt.plot(epochs, pll, '-b.', markevery=markers, label='pll')
-plt.plot(epochs, dev_loss, '-r', label='train_loss')
+#plt.plot(epochs, pll, '-b.', markevery=markers_res_0, label='pll')
+#plt.plot(epochs, dev_loss, '-r', label='train_loss')
 plt.xlabel('Epochs')
 
 

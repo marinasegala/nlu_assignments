@@ -73,6 +73,8 @@ if __name__ == "__main__":
     best_ppl = math.inf
     best_model = None
     array_ppl = []
+    train_loss = []
+    dev_loss = []
     cut_epochs = []
     train_loss = []
     dev_loss = []
@@ -116,7 +118,7 @@ if __name__ == "__main__":
     #save into a csv file the results
     
     index = 1
-    with open('LM/part_1/results_'+str(index)+'.csv', mode='w') as file:
+    with open('result_'+str(index)+'.csv', mode='w') as file:
         writer = csv.writer(file)
         writer.writerow(['Epoch', 'Train Loss', 'Dev Loss', 'PPL'])
         for i in range(len(array_ppl)):
