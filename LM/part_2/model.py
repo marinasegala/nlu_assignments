@@ -29,13 +29,14 @@ class LM_LSTM(nn.Module):
         super(LM_LSTM, self).__init__()
         # Token ids to vectors, we will better see this in the next lab
         self.embedding = nn.Embedding(output_size, emb_size, padding_idx=pad_index)
-        self.emb_dropout = VarDropout()
+        self.emb_dropout = VarDropout() #nn.Dropout(emb_dropout)
         self.lstm = nn.LSTM(emb_size, hidden_size, n_layers, bidirectional=False, batch_first=True)
         self.pad_token = pad_index
 
         # Linear layer to project the hidden layer to our output space
         self.output = nn.Linear(hidden_size, output_size)
-        self.last_dropout = VarDropout()
+        self.last_dropout = VarDropout() #nn.Dropout(out_dropout)
+        
         self.output.weight = self.embedding.weight #tie weights
 
     def forward(self, input_sequence):  #how layers interact
