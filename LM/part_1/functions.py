@@ -67,7 +67,7 @@ def init_weights(mat):
 
 def save_infos(path, name, lr, hid_size, emb_size, losses_train, losses_dev, ppl_train_array, ppl_dev_array, sampled_epochs, final_ppl, bool):
     #all'interno della cartella creata, salva i parametri del modello e i risultati
-    with open(path + name + '_dim.txt', 'w') as f:
+    with open(path + name + '_dim1.txt', 'w') as f:
         f.write('Learning rate: ' + str(lr) + '\n')
         f.write('Hidden size: ' + str(hid_size) + '\n')
         f.write('Embedding size: ' + str(emb_size) + '\n')
@@ -80,7 +80,7 @@ def save_infos(path, name, lr, hid_size, emb_size, losses_train, losses_dev, ppl
     plt.xlabel('Epochs')
     plt.legend()
     plt.grid()
-    plt.savefig(path+'loss.png')
+    plt.savefig(path+'loss1.png')
 
     plt.clf()
 
@@ -89,4 +89,4 @@ def save_infos(path, name, lr, hid_size, emb_size, losses_train, losses_dev, ppl
     plt.xlabel('Epochs')
     plt.legend()
     plt.grid()
-    plt.savefig(path+'ppl.png')
+    plt.savefig(path+'ppl1.png')

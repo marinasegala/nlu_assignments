@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
     vocab_len = len(lang.word2id)
 
-    model = LM_LSTM(emb_size, hid_size, vocab_len, pad_index=lang.word2id["<pad>"]).to(DEVICE)
+    model = LM_LSTM(emb_size, hid_size, vocab_len, pad_index=lang.word2id["<pad>"], out_dropout=0.3, emb_dropout=0.1).to(DEVICE)
     model.apply(init_weights)
 
     optimizer = optim.SGD(model.parameters(), lr=lr) #optim.AdamW(model.parameters(), lr=lr)
