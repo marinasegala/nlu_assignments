@@ -102,7 +102,9 @@ if __name__ == "__main__":
                 #   print(epoch, ' di 2')
                 # print(epoch)
                 # cut_epochs.append(epoch)
-                # lr = lr /2
+                if lr > 0.01:
+                    lr = lr / 2
+                    optimizer = optim.SGD(model.parameters(), lr=lr)
 
 
             if patience <= 0: # Early stopping with patience
@@ -113,8 +115,8 @@ if __name__ == "__main__":
     print('Test ppl: ', final_ppl)
     
     # To save the model
-    name = 'model_LSTM_11.pt'
-    path = 'bin/' + name
+    name = 'model_LSTM_11'
+    path = 'bin/' + name + '.pt'
     torch.save(model.state_dict(), path)
     # To load the model you need to initialize it
     # model = LM_RNN(emb_size, hid_size, vocab_len, pad_index=lang.word2id["<pad>"]).to(device)
@@ -123,5 +125,5 @@ if __name__ == "__main__":
 
     #-----------------------#
     path_info = 'PART_11/'
-    save_infos (path_info, name, lr, hid_size, emb_size, losses_train, losses_dev, ppl_train_array, ppl_dev_array, sampled_epochs, final_ppl)
+    save_infos (path_info, name, lr, hid_size, emb_size, losses_train, losses_dev, ppl_train_array, ppl_dev_array, sampled_epochs, final_ppl, True)
     #-----------------------#

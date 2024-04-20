@@ -1,0 +1,17 @@
+Learning rate: 2
+Hidden size: 200
+Embedding size: 300
+Final PPL: 151.98454275859845
+Last epoch: 37
+-----------
+Learning rate: 5
+Hidden size: 200
+Embedding size: 300
+Final PPL: 148.0707328718575
+Last epoch: 23
+-----------
+Learning rate: 10
+Hidden size: 200
+Embedding size: 300
+Final PPL: 147.7158349374203
+Last epoch: 15

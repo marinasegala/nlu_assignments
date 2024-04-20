@@ -65,25 +65,28 @@ def init_weights(mat):
                     m.bias.data.fill_(0.01)
 
 
-def save_infos(path, name, lr, hid_size, emb_size, losses_train, losses_dev, ppl_train_array, ppl_dev_array, sampled_epochs, final_ppl):
+def save_infos(path, name, lr, hid_size, emb_size, losses_train, losses_dev, ppl_train_array, ppl_dev_array, sampled_epochs, final_ppl, bool):
     #all'interno della cartella creata, salva i parametri del modello e i risultati
-    with open(path + name + '.txt', 'w') as f:
+    with open(path + name + '_dim.txt', 'w') as f:
         f.write('Learning rate: ' + str(lr) + '\n')
         f.write('Hidden size: ' + str(hid_size) + '\n')
         f.write('Embedding size: ' + str(emb_size) + '\n')
         f.write('Final PPL: ' + str(final_ppl) + '\n')
         f.write('Last epoch: ' + str(sampled_epochs[len(sampled_epochs)-1]))
+        f.write(': ' + str(bool))
 
     plt.plot(sampled_epochs, losses_dev, '-b', label='dev_loss')
     plt.plot(sampled_epochs, losses_train, '-r', label='train_loss')
     plt.xlabel('Epochs')
     plt.legend()
     plt.grid()
-    plt.savefig(path+'loss.png')
+    plt.savefig(path+'loss1.png')
+
+    plt.clf()
 
     plt.plot(sampled_epochs, ppl_dev_array, '-b', label='dev')
     plt.plot(sampled_epochs, ppl_train_array, '-r', label='train')
     plt.xlabel('Epochs')
     plt.legend()
     plt.grid()
-    plt.savefig(path+'ppl.png')
+    plt.savefig(path+'ppl1.png')

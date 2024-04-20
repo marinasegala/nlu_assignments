@@ -1,0 +1,6 @@
+Learning rate: 0.0078125
+Hidden size: 200
+Embedding size: 300
+Final PPL: 151.91598910674472
+Last epoch: 73
+Dimezzato: True
