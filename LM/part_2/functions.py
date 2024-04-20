@@ -4,6 +4,7 @@
 import torch
 import torch.nn as nn
 import math
+import matplotlib.pyplot as plt
 
 def train_loop(data, optimizer, criterion, model, clip=5):
     model.train()
@@ -63,9 +64,10 @@ def init_weights(mat):
                 torch.nn.init.uniform_(m.weight, -0.01, 0.01)
                 if m.bias != None:
                     m.bias.data.fill_(0.01)
+
 def save_infos(path, name, lr, hid_size, emb_size, losses_train, losses_dev, ppl_train_array, ppl_dev_array, sampled_epochs, final_ppl, bool):
     #all'interno della cartella creata, salva i parametri del modello e i risultati
-    with open(path + name + '_dim.txt', 'w') as f:
+    with open(path + name + '.txt', 'w') as f:
         f.write('Learning rate: ' + str(lr) + '\n')
         f.write('Hidden size: ' + str(hid_size) + '\n')
         f.write('Embedding size: ' + str(emb_size) + '\n')
@@ -78,7 +80,7 @@ def save_infos(path, name, lr, hid_size, emb_size, losses_train, losses_dev, ppl
     plt.xlabel('Epochs')
     plt.legend()
     plt.grid()
-    plt.savefig(path+'loss1.png')
+    plt.savefig(path+'loss.png')
 
     plt.clf()
 
@@ -87,4 +89,4 @@ def save_infos(path, name, lr, hid_size, emb_size, losses_train, losses_dev, ppl
     plt.xlabel('Epochs')
     plt.legend()
     plt.grid()
-    plt.savefig(path+'ppl1.png')
+    plt.savefig(path+'ppl.png')

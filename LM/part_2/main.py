@@ -102,75 +102,52 @@ if __name__ == "__main__":
 
             pbar.set_description("PPL: %f" % ppl_dev)
 
+            
             if  ppl_dev < best_ppl: 
                 best_ppl = ppl_dev 
-                for parameter in model.parameters():
-                    best_weights[parameter] = parameter.data.clone()
+                best_model = copy.deepcopy(model).to('cpu')
+                # for parameter in model.parameters():
+                #     best_weights[parameter] = parameter.data.clone()
                     #saving the parameter of the best model for using them to restart in that point
                 
                 patience = 3
-            elif ppl_dev > best_ppl and switch_optimizer: #if the model is not improving but the optimazer is switched, the patience is decreased
-                patience -= 1
-                lr = lr / 2
+            # elif ppl_dev > best_ppl and switch_optimizer: #if the model is not improving but the optimazer is switched, the patience is decreased
+            #     patience -= 1
+            #     lr = lr / 2
 
-            if patience <= 0 and switch_optimizer: # Early stopping with patience
+            if patience <= 0: # and switch_optimizer: # Early stopping with patience
                 break # Not nice but it keeps the code clean
 
             #with this if we control if is the case so switch the optimizer (SGD to ASGD)
-            if switch_optimizer == False and (len(losses_dev) > hyp_control_monotonic and losses_dev > min(best_val_loss[:-hyp_control_monotonic])):
-                switch_optimizer = True 
-                weights_update = best_weights 
+            # if switch_optimizer == False and (len(losses_dev) > hyp_control_monotonic and losses_dev > min(best_val_loss[:-hyp_control_monotonic])):
+            #     switch_optimizer = True 
+            #     weights_update = best_weights 
             
-            elif switch_optimizer:
-                counting_weight += 1
-                tmp = {}
-                for parameter in model.parameters():
-                    tmp[parameter] = parameter.data.clone()
-                    weights_update[parameter] = tmp[parameter]
+            # elif switch_optimizer:
+            #     counting_weight += 1
+            #     tmp = {}
+            #     for parameter in model.parameters():
+            #         tmp[parameter] = parameter.data.clone()
+            #         weights_update[parameter] = tmp[parameter]
                     
-                    average = weights_update[parameter] / counting_weight
-                    parameter.data = average.data.clone()
-                        
+            #         average = weights_update[parameter] / counting_weight
+            #         parameter.data = average.data.clone()
+                 
 
-    best_model.to(device)
+    best_model.to(DEVICE)
     final_ppl,  _ = eval_loop(test_loader, criterion_eval, best_model)
     print('Test ppl: ', final_ppl)
-    print(cut_epochs)
-
-    plt.plot(sampled_epochs, losses_dev, '-b', label='dev_loss')
-    plt.plot(sampled_epochs, losses_train, '-r', label='train_loss')
-    plt.xlabel('Epochs')
-
-
-    plt.legend()
-    plt.grid()
-
-    plt.savefig('loss.png')
-
-    plt.plot(sampled_epochs, ppl_dev_array, '-b', label='dev')
-    plt.plot(sampled_epochs, ppl_train_array, '-r', label='train')
-    plt.xlabel('Epochs')
-
-
-    plt.legend()
-    plt.grid()
-
-    plt.savefig('ppl.png')
     
-    # index = 0
-    # with open('result_'+str(index)+'.csv', mode='w') as file:
-    #     writer = csv.writer(file)
-    #     writer.writerow(['Epoch', 'Train Loss', 'Dev Loss', 'PPL train', 'PPL dev'])
-    #     for i in range(len(array_train)):
-    #         writer.writerow([sampled_epochs[i], train_loss[i], dev_loss[i], array_train[i], array_dev[i]])
-    #-----------------------#
-
     # To save the model
-    # path = 'model_bin/model_name.pt'
-    # torch.save(model.state_dict(), path)
+    name = 'model_LSTM_21'
+    path = 'bin/' + name + '.pt'
+    torch.save(model.state_dict(), path)
     # To load the model you need to initialize it
     # model = LM_RNN(emb_size, hid_size, vocab_len, pad_index=lang.word2id["<pad>"]).to(device)
     # Then you load it
     # model.load_state_dict(torch.load(path))
 
+    #-----------------------#
+    path_info = 'PART_21/'
+    save_infos (path_info, name, lr, hid_size, emb_size, losses_train, losses_dev, ppl_train_array, ppl_dev_array, sampled_epochs, final_ppl, False)
     #-----------------------#
