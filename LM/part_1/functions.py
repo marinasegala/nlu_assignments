@@ -4,6 +4,7 @@
 import torch
 import torch.nn as nn
 import math
+import matplotlib.pyplot as plt
 
 def train_loop(data, optimizer, criterion, model, clip=5):
     model.train()
@@ -21,7 +22,9 @@ def train_loop(data, optimizer, criterion, model, clip=5):
         torch.nn.utils.clip_grad_norm_(model.parameters(), clip)
         optimizer.step() # Update the weights
 
-    return sum(loss_array)/sum(number_of_tokens)
+    ppl = math.exp(sum(loss_array) / sum(number_of_tokens))
+    loss_to_return = sum(loss_array) / sum(number_of_tokens)
+    return ppl, loss_to_return
 
 def eval_loop(data, eval_criterion, model):
     model.eval()
@@ -60,3 +63,27 @@ def init_weights(mat):
                 torch.nn.init.uniform_(m.weight, -0.01, 0.01)
                 if m.bias != None:
                     m.bias.data.fill_(0.01)
+
+
+def save_infos(path, name, lr, hid_size, emb_size, losses_train, losses_dev, ppl_train_array, ppl_dev_array, sampled_epochs, final_ppl):
+    #all'interno della cartella creata, salva i parametri del modello e i risultati
+    with open(path + name + '.txt', 'w') as f:
+        f.write('Learning rate: ' + str(lr) + '\n')
+        f.write('Hidden size: ' + str(hid_size) + '\n')
+        f.write('Embedding size: ' + str(emb_size) + '\n')
+        f.write('Final PPL: ' + str(final_ppl) + '\n')
+        f.write('Last epoch: ' + str(sampled_epochs[len(sampled_epochs)-1]))
+
+    plt.plot(sampled_epochs, losses_dev, '-b', label='dev_loss')
+    plt.plot(sampled_epochs, losses_train, '-r', label='train_loss')
+    plt.xlabel('Epochs')
+    plt.legend()
+    plt.grid()
+    plt.savefig(path+'loss.png')
+
+    plt.plot(sampled_epochs, ppl_dev_array, '-b', label='dev')
+    plt.plot(sampled_epochs, ppl_train_array, '-r', label='train')
+    plt.xlabel('Epochs')
+    plt.legend()
+    plt.grid()
+    plt.savefig(path+'ppl.png')
