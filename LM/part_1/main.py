@@ -45,7 +45,7 @@ if __name__ == "__main__":
     # Increasing the back propagation steps can be seen as a regularization step
 
     # With SGD try with an higher learning rate (> 1 for instance)
-    lr = 2 #0.0001 # This is definitely not good for SGD
+    lr = 5 #0.0001 # This is definitely not good for SGD
     clip = 5 # Clip the gradient
     #device = 'cuda:0'
 
@@ -102,9 +102,9 @@ if __name__ == "__main__":
                 #   print(epoch, ' di 2')
                 # print(epoch)
                 # cut_epochs.append(epoch)
-                if lr > 0.01:
-                    lr = lr / 2
-                    optimizer = optim.SGD(model.parameters(), lr=lr)
+                # if lr > 0.01:
+                #     lr = lr / 2
+                #     optimizer = optim.SGD(model.parameters(), lr=lr)
 
 
             if patience <= 0: # Early stopping with patience
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     print('Test ppl: ', final_ppl)
     
     # To save the model
-    name = 'model_LSTM_11'
+    name = 'model_LSTM_12'
     path = 'bin/' + name + '.pt'
     torch.save(model.state_dict(), path)
     # To load the model you need to initialize it
@@ -124,6 +124,6 @@ if __name__ == "__main__":
     # model.load_state_dict(torch.load(path))
 
     #-----------------------#
-    path_info = 'PART_11/'
-    save_infos (path_info, name, lr, hid_size, emb_size, losses_train, losses_dev, ppl_train_array, ppl_dev_array, sampled_epochs, final_ppl, True)
+    path_info = 'PART_12/'
+    save_infos (path_info, name, lr, hid_size, emb_size, losses_train, losses_dev, ppl_train_array, ppl_dev_array, sampled_epochs, final_ppl, False)
     #-----------------------#

@@ -73,14 +73,14 @@ def save_infos(path, name, lr, hid_size, emb_size, losses_train, losses_dev, ppl
         f.write('Embedding size: ' + str(emb_size) + '\n')
         f.write('Final PPL: ' + str(final_ppl) + '\n')
         f.write('Last epoch: ' + str(sampled_epochs[len(sampled_epochs)-1]))
-        f.write('Halve : ' + str(bool))
+        f.write('\nHalve : ' + str(bool))
 
     plt.plot(sampled_epochs, losses_dev, '-b', label='dev_loss')
     plt.plot(sampled_epochs, losses_train, '-r', label='train_loss')
     plt.xlabel('Epochs')
     plt.legend()
     plt.grid()
-    plt.savefig(path+'loss1.png')
+    plt.savefig(path+'loss.png')
 
     plt.clf()
 
@@ -89,4 +89,4 @@ def save_infos(path, name, lr, hid_size, emb_size, losses_train, losses_dev, ppl
     plt.xlabel('Epochs')
     plt.legend()
     plt.grid()
-    plt.savefig(path+'ppl1.png')
+    plt.savefig(path+'ppl.png')
