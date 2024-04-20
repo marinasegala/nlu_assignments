@@ -13,7 +13,6 @@ import torch.optim as optim
 from tqdm import tqdm
 import numpy as np
 import copy
-import csv
 
 if __name__ == "__main__":
     #Wrtite the code to load the datasets and to run your functions
@@ -39,8 +38,6 @@ if __name__ == "__main__":
 
     #-----------------------#
 
-    # Experiment also with a smaller or bigger model by changing hid and emb sizes
-    # A large model tends to overfit
     hid_size = 200 #200
     emb_size = 300
 
@@ -50,13 +47,11 @@ if __name__ == "__main__":
     # With SGD try with an higher learning rate (> 1 for instance)
     lr = 2 #0.0001 # This is definitely not good for SGD
     clip = 5 # Clip the gradient
-    device = 'cuda:0'
+    #device = 'cuda:0'
 
     vocab_len = len(lang.word2id)
 
-    #model = LM_RNN(emb_size, hid_size, vocab_len, pad_index=lang.word2id["<pad>"]).to(device)
-
-    model = LM_LSTM(emb_size, hid_size, vocab_len, pad_index=lang.word2id["<pad>"]).to(device)
+    model = LM_LSTM(emb_size, hid_size, vocab_len, pad_index=lang.word2id["<pad>"]).to(DEVICE)
     model.apply(init_weights)
 
     optimizer = optim.SGD(model.parameters(), lr=lr) #optim.AdamW(model.parameters(), lr=lr)
@@ -67,31 +62,34 @@ if __name__ == "__main__":
 
     n_epochs = 100
     patience = 3 #prevent overfitting and save computational power
+    
     losses_train = []
     losses_dev = []
+    ppl_train_array = []
+    ppl_dev_array = []
     sampled_epochs = []
+
     best_ppl = math.inf
     best_model = None
-    array_ppl = []
-    train_loss = []
-    dev_loss = []
-    cut_epochs = []
-    train_loss = []
-    dev_loss = []
+
     pbar = tqdm(range(1,n_epochs))
+
     #If the PPL is too high try to change the learning rate
     for epoch in pbar:
-        loss = train_loop(train_loader, optimizer, criterion_train, model, clip)
-        train_loss.append(loss)
+        ppl, loss = train_loop(train_loader, optimizer, criterion_train, model, clip)
+        ppl_train_array.append(ppl)
+        losses_train.append(np.asarray(loss).mean())
+        
+        sampled_epochs.append(epoch)
+
         if epoch % 1 == 0:
-            sampled_epochs.append(epoch)
-            losses_train.append(np.asarray(loss).mean())
             ppl_dev, loss_dev = eval_loop(dev_loader, criterion_eval, model)
-            dev_loss.append(loss_dev)
+            ppl_dev_array.append(ppl_dev)
             losses_dev.append(np.asarray(loss_dev).mean())
+
             pbar.set_description("PPL: %f" % ppl_dev)
-            array_ppl.append(ppl_dev)
-            if  ppl_dev < best_ppl: # the lower, the better
+            
+            if  ppl_dev < best_ppl:
                 best_ppl = ppl_dev
                 best_model = copy.deepcopy(model).to('cpu')
                 patience = 3
@@ -102,35 +100,28 @@ if __name__ == "__main__":
                 #   lr = lr/4
                 # else:
                 #   print(epoch, ' di 2')
-                #print(epoch)
-                cut_epochs.append(epoch)
-                lr = lr /2
+                # print(epoch)
+                # cut_epochs.append(epoch)
+                # lr = lr /2
 
 
             if patience <= 0: # Early stopping with patience
                 break # Not nice but it keeps the code clean
 
-    best_model.to(device)
+    best_model.to(DEVICE)
     final_ppl,  _ = eval_loop(test_loader, criterion_eval, best_model)
     print('Test ppl: ', final_ppl)
-    print(cut_epochs)
-
-    #save into a csv file the results
     
-    index = 1
-    with open('result_'+str(index)+'.csv', mode='w') as file:
-        writer = csv.writer(file)
-        writer.writerow(['Epoch', 'Train Loss', 'Dev Loss', 'PPL'])
-        for i in range(len(array_ppl)):
-            writer.writerow([sampled_epochs[i], train_loss[i], dev_loss[i], array_ppl[i]])
-    #-----------------------#
-
     # To save the model
-    # path = 'model_bin/model_name.pt'
-    # torch.save(model.state_dict(), path)
+    name = 'model_LSTM_11.pt'
+    path = 'bin/' + name
+    torch.save(model.state_dict(), path)
     # To load the model you need to initialize it
     # model = LM_RNN(emb_size, hid_size, vocab_len, pad_index=lang.word2id["<pad>"]).to(device)
     # Then you load it
     # model.load_state_dict(torch.load(path))
 
+    #-----------------------#
+    path_info = 'PART_11/'
+    save_infos (path_info, name, lr, hid_size, emb_size, losses_train, losses_dev, ppl_train_array, ppl_dev_array, sampled_epochs, final_ppl)
     #-----------------------#

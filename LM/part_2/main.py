@@ -14,6 +14,7 @@ from tqdm import tqdm
 import numpy as np
 import copy
 import matplotlib.pyplot as plt
+import os
 
 if __name__ == "__main__":
     #Wrtite the code to load the datasets and to run your functions
@@ -69,51 +70,75 @@ if __name__ == "__main__":
     patience = 3 #prevent overfitting and save computational power
     losses_train = []
     losses_dev = []
+    ppl_train_array = []
+    ppl_dev_array = []
     sampled_epochs = []
+    cut_epochs = []
+    pbar = tqdm(range(1,n_epochs))
+
     best_ppl = math.inf
     best_model = None
-    array_dev_ppl = []
-    array_train_ppl = []
-    cut_epochs = []
-    array_train_loss = []
-    array_dev_loss = []
-    pbar = tqdm(range(1,n_epochs))
+    
+    weights_update = {}
+    best_weights = {}
+    switch_optimizer = False
+
+    stored_loss = math.inf
+    best_val_loss = []
+    hyp_control_monotonic = 5
+    counting_weight = 0
+
     #If the PPL is too high try to change the learning rate
     for epoch in pbar:
         ppl, loss = train_loop(train_loader, optimizer, criterion_train, model, clip)
-        #print(loss)
-        array_train_loss.append(loss)
-        array_train_ppl.append(ppl)
+        ppl_train_array.append(ppl)
+        losses_train.append(np.asarray(loss).mean())
         sampled_epochs.append(epoch)
 
         if epoch % 1 == 0:
-            losses_train.append(np.asarray(loss).mean())
             ppl_dev, loss_dev = eval_loop(dev_loader, criterion_eval, model)
-            array_dev_loss.append(loss_dev)
-            array_dev_ppl.append(ppl_dev)
-
+            ppl_dev_array.append(ppl_dev)
             losses_dev.append(np.asarray(loss_dev).mean())
+
             pbar.set_description("PPL: %f" % ppl_dev)
-            if  ppl_dev < best_ppl: # the lower, the better
-                best_ppl = ppl_dev
-                best_model = copy.deepcopy(model).to('cpu')
+
+            if  ppl_dev < best_ppl: 
+                best_ppl = ppl_dev 
+                for parameter in model.parameters():
+                    best_weights[parameter] = parameter.data.clone()
+                    #saving the parameter of the best model for using them to restart in that point
+                
                 patience = 3
-            else:
+            elif ppl_dev > best_ppl and switch_optimizer: #if the model is not improving but the optimazer is switched, the patience is decreased
                 patience -= 1
-                #cut_epochs.append(epoch)
-                #lr = lr /2
+                lr = lr / 2
 
-
-            if patience <= 0: # Early stopping with patience
+            if patience <= 0 and switch_optimizer: # Early stopping with patience
                 break # Not nice but it keeps the code clean
+
+            #with this if we control if is the case so switch the optimizer (SGD to ASGD)
+            if switch_optimizer == False and (len(losses_dev) > hyp_control_monotonic and losses_dev > min(best_val_loss[:-hyp_control_monotonic])):
+                switch_optimizer = True 
+                weights_update = best_weights 
+            
+            elif switch_optimizer:
+                counting_weight += 1
+                tmp = {}
+                for parameter in model.parameters():
+                    tmp[parameter] = parameter.data.clone()
+                    weights_update[parameter] = tmp[parameter]
+                    
+                    average = weights_update[parameter] / counting_weight
+                    parameter.data = average.data.clone()
+                        
 
     best_model.to(device)
     final_ppl,  _ = eval_loop(test_loader, criterion_eval, best_model)
     print('Test ppl: ', final_ppl)
     print(cut_epochs)
 
-    plt.plot(sampled_epochs, array_dev_loss, '-b', label='dev_loss')
-    plt.plot(sampled_epochs, array_train_loss, '-r', label='train_loss')
+    plt.plot(sampled_epochs, losses_dev, '-b', label='dev_loss')
+    plt.plot(sampled_epochs, losses_train, '-r', label='train_loss')
     plt.xlabel('Epochs')
 
 
@@ -122,8 +147,8 @@ if __name__ == "__main__":
 
     plt.savefig('loss.png')
 
-    plt.plot(sampled_epochs, array_dev_ppl, '-b', label='dev')
-    plt.plot(sampled_epochs, array_train_ppl, '-r', label='train')
+    plt.plot(sampled_epochs, ppl_dev_array, '-b', label='dev')
+    plt.plot(sampled_epochs, ppl_train_array, '-r', label='train')
     plt.xlabel('Epochs')
 
 
