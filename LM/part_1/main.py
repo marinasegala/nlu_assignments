@@ -45,16 +45,16 @@ if __name__ == "__main__":
     # Increasing the back propagation steps can be seen as a regularization step
 
     # With SGD try with an higher learning rate (> 1 for instance)
-    lr = 5 #0.0001 # This is definitely not good for SGD
+    lr = 0.0001 #0.0001 # This is definitely not good for SGD
     clip = 5 # Clip the gradient
     #device = 'cuda:0'
 
     vocab_len = len(lang.word2id)
 
-    model = LM_LSTM(emb_size, hid_size, vocab_len, pad_index=lang.word2id["<pad>"], out_dropout=0.3, emb_dropout=0.1).to(DEVICE)
+    model = LM_LSTM(emb_size, hid_size, vocab_len, pad_index=lang.word2id["<pad>"], out_dropout=0.3).to(DEVICE)
     model.apply(init_weights)
 
-    optimizer = optim.SGD(model.parameters(), lr=lr) #optim.AdamW(model.parameters(), lr=lr)
+    optimizer = optim.AdamW(model.parameters(), lr=lr) #optim.SGD(model.parameters(), lr=lr) #optim.AdamW(model.parameters(), lr=lr)
     criterion_train = nn.CrossEntropyLoss(ignore_index=lang.word2id["<pad>"])
     criterion_eval = nn.CrossEntropyLoss(ignore_index=lang.word2id["<pad>"], reduction='sum')
 
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     print('Test ppl: ', final_ppl)
     
     # To save the model
-    name = 'model_LSTM_12'
+    name = 'model_LSTM_13'
     path = 'bin/' + name + '.pt'
     torch.save(model.state_dict(), path)
     # To load the model you need to initialize it
@@ -124,6 +124,6 @@ if __name__ == "__main__":
     # model.load_state_dict(torch.load(path))
 
     #-----------------------#
-    path_info = 'PART_12/'
+    path_info = 'PART_13/'
     save_infos (path_info, name, lr, hid_size, emb_size, losses_train, losses_dev, ppl_train_array, ppl_dev_array, sampled_epochs, final_ppl, False)
     #-----------------------#

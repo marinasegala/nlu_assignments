@@ -15,3 +15,22 @@ Hidden size: 200
 Embedding size: 300
 Final PPL: 147.7158349374203
 Last epoch: 15
+------------
+Learning rate: 2 - 0.0078125
+Hidden size: 200
+Embedding size: 300
+Final PPL: 151.91598910674472
+Last epoch: 73
+Halve: True
+------------
+Learning rate: 5 -  0.078125
+Hidden size: 200
+Embedding size: 300
+Final PPL: 144.29192352665663
+Last epoch: 25
+Halve : True ---> OK ppl1 e loss 1 e 
+
+
+1.2 
+meglio i file 1 - out_drop = 0.3
+file try2 è con anche emb_drop a 0.3

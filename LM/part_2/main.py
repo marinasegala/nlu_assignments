@@ -106,32 +106,32 @@ if __name__ == "__main__":
             if  ppl_dev < best_ppl: 
                 best_ppl = ppl_dev 
                 best_model = copy.deepcopy(model).to('cpu')
-                # for parameter in model.parameters():
-                #     best_weights[parameter] = parameter.data.clone()
+                for parameter in model.parameters():
+                    best_weights[parameter] = parameter.data.clone()
                     #saving the parameter of the best model for using them to restart in that point
                 
                 patience = 3
-            # elif ppl_dev > best_ppl and switch_optimizer: #if the model is not improving but the optimazer is switched, the patience is decreased
-            #     patience -= 1
-            #     lr = lr / 2
+            elif ppl_dev > best_ppl and switch_optimizer: #if the model is not improving but the optimazer is switched, the patience is decreased
+                patience -= 1
+                lr = lr / 2
 
             if patience <= 0: # and switch_optimizer: # Early stopping with patience
                 break # Not nice but it keeps the code clean
 
             #with this if we control if is the case so switch the optimizer (SGD to ASGD)
-            # if switch_optimizer == False and (len(losses_dev) > hyp_control_monotonic and losses_dev > min(best_val_loss[:-hyp_control_monotonic])):
-            #     switch_optimizer = True 
-            #     weights_update = best_weights 
+            if switch_optimizer == False and (len(losses_dev) > hyp_control_monotonic and losses_dev > min(best_val_loss[:-hyp_control_monotonic])):
+                switch_optimizer = True 
+                weights_update = best_weights 
             
-            # elif switch_optimizer:
-            #     counting_weight += 1
-            #     tmp = {}
-            #     for parameter in model.parameters():
-            #         tmp[parameter] = parameter.data.clone()
-            #         weights_update[parameter] = tmp[parameter]
+            elif switch_optimizer:
+                counting_weight += 1
+                tmp = {}
+                for parameter in model.parameters():
+                    tmp[parameter] = parameter.data.clone()
+                    weights_update[parameter] = tmp[parameter]
                     
-            #         average = weights_update[parameter] / counting_weight
-            #         parameter.data = average.data.clone()
+                    average = weights_update[parameter] / counting_weight
+                    parameter.data = average.data.clone()
                  
 
     best_model.to(DEVICE)
