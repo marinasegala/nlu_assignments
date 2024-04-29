@@ -90,8 +90,8 @@ class ModelIAS(nn.Module):
         self.embedding = nn.Embedding(vocab_len, emb_size, padding_idx=pad_index)
         
         self.utt_encoder = nn.LSTM(emb_size, hid_size, n_layer, bidirectional=False, batch_first=True)    
-        self.slot_out = nn.Linear(hid_size, out_slot)
-        self.intent_out = nn.Linear(hid_size, out_int)
+        self.slot_out = nn.Linear(hid_size, out_slot) #hid_size * 2 if bidirectional
+        self.intent_out = nn.Linear(hid_size, out_int) #hid_size * 2 if bidirectional
         # Dropout layer How/Where do we apply it?
         self.dropout = nn.Dropout(0.1)
         

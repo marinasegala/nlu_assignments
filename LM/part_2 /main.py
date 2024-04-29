@@ -111,6 +111,7 @@ if __name__ == "__main__":
                     #saving the parameter of the best model for using them to restart in that point
                 
                 patience = 3
+                
             elif ppl_dev > best_ppl and switch_optimizer: #if the model is not improving but the optimazer is switched, the patience is decreased
                 patience -= 1
                 lr = lr / 2
