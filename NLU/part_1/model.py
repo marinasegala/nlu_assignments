@@ -109,6 +109,9 @@ class ModelIAS(nn.Module):
         utt_encoded, input_sizes = pad_packed_sequence(packed_output, batch_first=True)
         # Get the last hidden state
         last_hidden = last_hidden[-1,:,:]
+
+        ## Concatena gli stati nascosti finali delle direzioni avanti e indietro
+        # last_hidden = torch.cat((last_hidden[-2,:,:], last_hidden[-1,:,:]), dim=1)
         
         # Is this another possible way to get the last hiddent state? (Why?)
         # utt_encoded.permute(1,0,2)[-1]
