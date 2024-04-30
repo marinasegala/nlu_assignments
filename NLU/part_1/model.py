@@ -116,6 +116,8 @@ class ModelIAS(nn.Module):
         # Is this another possible way to get the last hiddent state? (Why?)
         # utt_encoded.permute(1,0,2)[-1]
         
+        utt_emb = self.dropout(utt_encoded) #dropout layer
+
         # Compute slot logits
         slots = self.slot_out(utt_encoded)
         # Compute intent logits
