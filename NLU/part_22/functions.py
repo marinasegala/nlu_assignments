@@ -5,7 +5,7 @@ import random
 import numpy as np
 from sklearn.model_selection import train_test_split
 from collections import Counter
-from model import Lang_Bert
+from model import Lang
 import torch
 import torch.nn as nn
 
@@ -68,54 +68,25 @@ def create_lang(train_raw, dev_raw, test_raw, tokenizer):
     slots = set(sum([line['slots'].split() for line in corpus],[]))
     intents = set([line['intent'] for line in corpus])
 
-    lang = Lang_Bert(words, intents, slots, tokenizer)
+    lang = Lang(words, intents, slots, tokenizer)
     return lang
 
 def init_weights(mat):
     for n, m in mat.named_modules():
-        # if type(m) in [nn.GRU, nn.LSTM, nn.RNN]:
-        #     for name, param in m.named_parameters():
-        #         if 'weight_ih' in name:
-        #             for idx in range(4):
-        #                 mul = param.shape[0]//4
-        #                 torch.nn.init.xavier_uniform_(param[idx*mul:(idx+1)*mul])
-        #         elif 'weight_hh' in name:
-        #             for idx in range(4):
-        #                 mul = param.shape[0]//4
-        #                 torch.nn.init.orthogonal_(param[idx*mul:(idx+1)*mul])
-        #         elif 'bias' in name:
-        #             param.data.fill_(0)
-        # else:
         if n in ['intent_out', 'slot_out']:
             if type(m) in [nn.Linear]:
                 torch.nn.init.uniform_(m.weight, -0.01, 0.01)
                 if m.bias != None:
                     m.bias.data.fill_(0.01)
 
-def preprocess(data, tokenizer):
-    preprocess_data = []
-    for sample in data:
-        # Tokenizza l'utterance e crea la maschera di attenzione
-        encoding = tokenizer(sample['utterances'], truncation=True, padding='max_length', max_length=512)
-        inputs_ids = encoding['inputs_ids']
-        attention_mask = encoding['attention_mask']
-
-        # Aggiungi i nuovi campi al sample
-        sample['inputs_ids'] = inputs_ids
-        sample['attention_mask'] = attention_mask
-
-        preprocess_data.append(sample)
-
-    return preprocess_data
-
 def train_loop(data, optimizer, criterion_slots, criterion_intents, model, clip=5):
     model.train()
     loss_array = []
     for sample in data:
         optimizer.zero_grad() # Zeroing the gradient
-        slots, intent = model(sample['inputs_ids'], sample['attention_masks'])
+        slots, intent = model(sample['inputs_ids'], sample['attentions_mask'])
         loss_intent = criterion_intents(intent, sample['intents'])
-        loss_slot = criterion_slots(slots, sample['y_slots']) #slots.view(-1, slots.size(-1)), sample['y_slots'].view(-1)
+        loss_slot = criterion_slots(slots, sample['y_slots'])
         loss = loss_intent + loss_slot # In joint training we sum the losses. 
                                        # Is there another way to do that?
         loss_array.append(loss.item())
@@ -137,7 +108,7 @@ def eval_loop(data, criterion_slots, criterion_intents, model, lang):
     #softmax = nn.Softmax(dim=1) # Use Softmax if you need the actual probability
     with torch.no_grad(): # It used to avoid the creation of computational graph
         for sample in data:
-            slots, intents = model(sample['inputs_ids'], sample['attention_masks'])
+            slots, intents = model(sample['utterances'], sample['slots_len'])
             loss_intent = criterion_intents(intents, sample['intents'])
             loss_slot = criterion_slots(slots, sample['y_slots'])
             loss = loss_intent + loss_slot 

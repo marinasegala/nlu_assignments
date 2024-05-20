@@ -104,6 +104,7 @@ if __name__ == "__main__":
 
     path_info = 'PART_11/'
     save_infos (path_info, model_name, lr, hid_size, emb_size, losses_train, losses_dev, sampled_epochs, x, results_test, best_f1, intent_test, lang.word2id, lang.slot2id, lang.intent2id)
+    
     '''
 
     #----------------- MULTIPLE RUN OF TRAINING AND EVAL  -----------------#
