@@ -154,7 +154,7 @@ if __name__ == "__main__":
                 if f1 > best_f1:
                     best_f1 = f1
                     best_model = copy.deepcopy(model).to('cpu')
-                    best_model_array[i] = best_model
+                    best_model_array.append(best_model)
                 else:
                     patience -= 1
                 if patience <= 0: # Early stopping with patient

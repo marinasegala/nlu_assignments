@@ -4,15 +4,10 @@ import json
 from pprint import pprint
 import torch
 
-os.environ['CUDA_LAUNCH_BLOCKING'] = "1" # Used to report errors on CUDA side
+#os.environ['CUDA_LAUNCH_BLOCKING'] = "1" # Used to report errors on CUDA side
 PAD_TOKEN = 0
-
-if torch.cuda.is_available():
-    device = torch.device("cuda")
-elif torch.backends.mps.is_available():
-    device = torch.device("mps")
-else:
-    device = torch.device("cpu")
+DEVICE = 'cuda:0'
+# os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
 def load_data(path):
     '''
@@ -57,13 +52,13 @@ def collate_fn(data):
     inputs_ids, _ = merge(new_item['inputs_ids'])
     attentions_mask, _ = merge(new_item['attentions_mask'])
     
-    src_utt = src_utt.to(device) # We load the Tensor on our selected device
-    y_slots = y_slots.to(device)
-    intent = intent.to(device)
-    y_lengths = torch.LongTensor(y_lengths).to(device)
+    src_utt = src_utt.to(DEVICE) # We load the Tensor on our selected DEVICE
+    y_slots = y_slots.to(DEVICE)
+    intent = intent.to(DEVICE)
+    y_lengths = torch.LongTensor(y_lengths).to(DEVICE)
 
-    inputs_ids = inputs_ids.to(device)
-    attentions_mask = attentions_mask.to(device)
+    inputs_ids = inputs_ids.to(DEVICE)
+    attentions_mask = attentions_mask.to(DEVICE)
     
     new_item["utterances"] = src_utt
     new_item["intents"] = intent

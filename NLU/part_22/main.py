@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
     #----------------- TRAINING + EVAL -----------------#
 
-    hid_size = 768
+    hid_size = 300
     emb_size = 300
 
     lr = 0.0001 # learning rate
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     vocab_len = len(lang.word2id)
 
     #TODO - CHANGE FOR BERT
-    model = ModelIAS(model_Bert, hid_size, out_slot, out_int).to(device)
+    model = ModelIAS(model_Bert, hid_size, out_slot, out_int).to(DEVICE)
     model.apply(init_weights)
 
     optimizer = optim.Adam(model.parameters(), lr=lr)

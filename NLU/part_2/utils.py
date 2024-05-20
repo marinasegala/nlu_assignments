@@ -4,16 +4,11 @@ import json
 from pprint import pprint
 import torch
 
-#device = 'cuda:0' # cuda:0 means we are using the GPU with id 0, if you have multiple GPU
-os.environ['CUDA_LAUNCH_BLOCKING'] = "1" # Used to report errors on CUDA side
+# device = 'cuda:0' # cuda:0 means we are using the GPU with id 0, if you have multiple GPU
+device = 'cpu'
+# os.environ['CUDA_LAUNCH_BLOCKING'] = "1" # Used to report errors on CUDA side
+# os.environ['TORCH_USE_CUDA_DSA'] = "1"
 PAD_TOKEN = 0
-
-if torch.cuda.is_available():
-    device = torch.device("cuda")
-elif torch.backends.mps.is_available():
-    device = torch.device("mps")
-else:
-    device = torch.device("cpu")
 
 def load_data(path):
     '''
@@ -44,6 +39,7 @@ def collate_fn(data):
         padded_seqs = padded_seqs.detach()  # We remove these tensors from the computational graph
         return padded_seqs, lengths
     # Sort data by seq lengths
+
     data.sort(key=lambda x: len(x['inputs_ids']), reverse=True)
 
     new_item = {}
@@ -64,7 +60,7 @@ def collate_fn(data):
     y_lengths = torch.LongTensor(y_lengths).to(device)
     
     new_item["inputs_ids"] = src_utt
-    new_item["attention_masks"] = attention_mask
+    new_item["attention_mask"] = attention_mask
     new_item["intents"] = intent
     new_item["y_slots"] = y_slots
     new_item["slots_len"] = y_lengths
