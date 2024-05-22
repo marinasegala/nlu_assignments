@@ -5,9 +5,16 @@ from pprint import pprint
 import torch
 
 # device = 'cuda:0' # cuda:0 means we are using the GPU with id 0, if you have multiple GPU
-device = 'cpu'
+# device = 'cpu'
 # os.environ['CUDA_LAUNCH_BLOCKING'] = "1" # Used to report errors on CUDA side
 # os.environ['TORCH_USE_CUDA_DSA'] = "1"
+if torch.cuda.is_available():
+    device = torch.device("cuda")
+elif torch.backends.mps.is_available():
+    device = torch.device("mps")
+else:
+    device = torch.device("cpu")
+
 PAD_TOKEN = 0
 
 def load_data(path):
@@ -47,21 +54,25 @@ def collate_fn(data):
         new_item[key] = [d[key] for d in data]
         
     # We just need one length for packed pad seq, since len(utt) == len(slots)
-    src_utt, _ = merge(new_item['inputs_ids'])
+    src_inpt, _ = merge(new_item['inputs_ids'])
     attention_mask, _ = merge(new_item['attention_mask'])
     y_slots, y_lengths = merge(new_item['slots'])
     intent = torch.LongTensor(new_item['intent'])
+
+    src_utt, _ = merge(new_item['utterance'])
     
     
-    src_utt = src_utt.to(device) # We load the Tensor on our selected device
+    src_inpt = src_inpt.to(device) # We load the Tensor on our selected device
     attention_mask = attention_mask.to(device)
     y_slots = y_slots.to(device)
     intent = intent.to(device)
     y_lengths = torch.LongTensor(y_lengths).to(device)
+    src_utt = src_utt.to(device)
     
-    new_item["inputs_ids"] = src_utt
+    new_item["inputs_ids"] = src_inpt
     new_item["attention_mask"] = attention_mask
     new_item["intents"] = intent
     new_item["y_slots"] = y_slots
     new_item["slots_len"] = y_lengths
+    new_item["utterance"] = src_utt
     return new_item

@@ -108,33 +108,49 @@ def eval_loop(data, criterion_slots, criterion_intents, model, lang):
     #softmax = nn.Softmax(dim=1) # Use Softmax if you need the actual probability
     with torch.no_grad(): # It used to avoid the creation of computational graph
         for sample in data:
-            slots, intents = model(sample['inputs_ids'], sample['slots_len'])
+            slots, intents = model(sample['inputs_ids'], sample['attention_mask'])
             loss_intent = criterion_intents(intents, sample['intents'])
             loss_slot = criterion_slots(slots, sample['y_slots'])
             loss = loss_intent + loss_slot 
             loss_array.append(loss.item())
+
             # Intent inference
             # Get the highest probable class
-            out_intents = [lang.id2intent[x] 
-                           for x in torch.argmax(intents, dim=1).tolist()] 
+            out_intents = [lang.id2intent[x] for x in torch.argmax(intents, dim=1).tolist()] 
             gt_intents = [lang.id2intent[x] for x in sample['intents'].tolist()]
             ref_intents.extend(gt_intents)
             hyp_intents.extend(out_intents)
             
             # Slot inference 
             output_slots = torch.argmax(slots, dim=1)
+
             for id_seq, seq in enumerate(output_slots):
                 length = sample['slots_len'].tolist()[id_seq]
-                utt_ids = sample['utterance'][id_seq][:length].tolist()
+                utt_ids = sample['inputs_ids'][id_seq][:length].tolist()
+                # prova_utt_ids = sample['utterance'][id_seq][:length].tolist()
                 gt_ids = sample['y_slots'][id_seq].tolist()
+                utterance = [lang.tokenizer.convert_ids_to_tokens(elem) for elem in utt_ids]
+                # prova_utterance = [lang.id2word[elem] for elem in prova_utt_ids]
                 gt_slots = [lang.id2slot[elem] for elem in gt_ids[:length]]
-                utterance = [lang.id2word[elem] for elem in utt_ids]
+
+                for utt, slot in zip(utterance, gt_slots):
+                    if utt in ['[CLS]', '[SEP]']:
+                        utterance.remove(utt)
+                        gt_slots.remove(slot)
+                    elif utt.startswith('##'):
+                        utterance[utterance.index(utt)-1] += utt[2:]
+                        utterance.remove(utt)
+                        gt_slots.remove(slot)
+                    # else:
+                    #     gt_slots.append(lang.id2slot[slot_id])
+                length = len(utterance)
                 to_decode = seq[:length].tolist()
                 ref_slots.append([(utterance[id_el], elem) for id_el, elem in enumerate(gt_slots)])
                 tmp_seq = []
                 for id_el, elem in enumerate(to_decode):
                     tmp_seq.append((utterance[id_el], lang.id2slot[elem]))
                 hyp_slots.append(tmp_seq)
+
     try:            
         results = evaluate(ref_slots, hyp_slots)
     except Exception as ex:
