@@ -1,6 +1,0 @@
-Learning rate: 5
-Hidden size: 200
-Embedding size: 300
-Final PPL: 134.8463685097887
-Last epoch: 45
-Halve : False
